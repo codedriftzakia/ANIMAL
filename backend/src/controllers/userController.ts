@@ -4,28 +4,24 @@ import User from '../models/User';
 // POST /api/users/register
 export async function registerUser(req: Request, res: Response) {
   try {
-    const { name, email, role, organization } = req.body;
+    const { name, role } = req.body;
 
-    if (!name || !email) {
-      return res.status(400).json({ success: false, message: 'Name and Email are required' });
+    if (!name) {
+      return res.status(400).json({ success: false, message: 'Name is required' });
     }
 
-    // Check if user already registered by email
-    let user = await User.findOne({ email: email.toLowerCase() });
+    const trimmedName = name.trim();
+    let user = await User.findOne({ name: { $regex: `^${trimmedName}$`, $options: 'i' } });
 
     if (user) {
-      // Update existing user profile details
-      user.name = name;
+      // Update existing user role
       user.role = role || user.role;
-      user.organization = organization !== undefined ? organization : user.organization;
       await user.save();
     } else {
-      // Create new registered user
+      // Create new user profile
       user = new User({
-        name,
-        email: email.toLowerCase(),
+        name: trimmedName,
         role: role || 'Visitor',
-        organization: organization || '',
       });
       await user.save();
     }

@@ -7,7 +7,7 @@ export async function registerUser(userData) {
     const res = await fetch(`${API_BASE}/users/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData),
+      body: JSON.stringify({ name: userData.name, role: userData.role }),
     });
     if (!res.ok) throw new Error('Registration failed');
     return await res.json();
@@ -16,9 +16,7 @@ export async function registerUser(userData) {
     const newReg = {
       _id: `user_${Date.now()}`,
       name: userData.name,
-      email: userData.email,
       role: userData.role || 'Visitor',
-      organization: userData.organization || '',
       createdAt: new Date().toISOString(),
     };
     localUsers.push(newReg);
