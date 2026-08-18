@@ -50,7 +50,7 @@ const FeedbackSchema: Schema = new Schema(
     status: { 
       type: String, 
       enum: ['Pending', 'Under Review', 'Resolved', 'Highlighted'], 
-      default: 'Pending' 
+      default: 'Resolved' 
     },
     staffNote: { type: String, default: '' },
   },

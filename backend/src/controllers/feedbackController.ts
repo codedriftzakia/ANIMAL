@@ -70,7 +70,7 @@ export async function createFeedback(req: Request, res: Response) {
       imageUrl: imageUrl || '',
       isUrgent: Boolean(isUrgent),
       sentiment,
-      status: 'Pending',
+      status: 'Resolved',
     });
 
     await feedback.save();

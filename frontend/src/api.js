@@ -166,7 +166,7 @@ export async function submitFeedback(data) {
       imageUrl: data.imageUrl || '',
       isUrgent: Boolean(data.isUrgent),
       sentiment: data.isUrgent ? 'URGENT ALERT' : 'POSITIVE',
-      status: 'Pending',
+      status: 'Resolved',
       createdAt: new Date().toISOString(),
     };
     localFeedbacks.unshift(newFb);
