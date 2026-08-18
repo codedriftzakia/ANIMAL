@@ -1,7 +1,16 @@
 import React from 'react';
-import { Heart, Activity, Grid, MessageSquarePlus, Sun, Moon, Database, ShieldCheck, PlusCircle } from 'lucide-react';
+import { Heart, Activity, Grid, MessageSquarePlus, Sun, Moon, Database, UserCheck, UserPlus, PlusCircle } from 'lucide-react';
 
-export default function Navbar({ activeTab, setActiveTab, theme, toggleTheme, dbStatus, onOpenSubmitModal }) {
+export default function Navbar({ 
+  activeTab, 
+  setActiveTab, 
+  theme, 
+  toggleTheme, 
+  dbStatus, 
+  currentUser, 
+  onOpenRegisterModal, 
+  onOpenSubmitModal 
+}) {
   return (
     <header className="glass-panel" style={{ margin: '1rem 0 2rem 0', padding: '0.85rem 1.5rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
@@ -34,7 +43,7 @@ export default function Navbar({ activeTab, setActiveTab, theme, toggleTheme, db
                 background: 'rgba(99, 102, 241, 0.15)',
                 color: '#6366f1'
               }}>
-                v1.0 MongoDB
+                v1.1 Atlas
               </span>
             </div>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
@@ -73,10 +82,43 @@ export default function Navbar({ activeTab, setActiveTab, theme, toggleTheme, db
           </button>
         </nav>
 
-        {/* Controls & Actions */}
+        {/* Controls & User Profile Badge */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           
-          {/* DB Connection Status Badge */}
+          {/* User Registration Status Badge */}
+          {currentUser ? (
+            <div 
+              onClick={onOpenRegisterModal}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.35rem 0.85rem',
+                borderRadius: '20px',
+                background: 'rgba(99, 102, 241, 0.12)',
+                border: '1px solid rgba(99, 102, 241, 0.3)',
+                cursor: 'pointer',
+              }}
+              title="Click to update registration profile"
+            >
+              <UserCheck size={16} color="#6366f1" />
+              <div style={{ fontSize: '0.78rem' }}>
+                <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{currentUser.name}</span>
+                <span style={{ color: '#6366f1', marginLeft: '0.35rem' }}>({currentUser.role})</span>
+              </div>
+            </div>
+          ) : (
+            <button 
+              className="btn btn-secondary" 
+              onClick={onOpenRegisterModal}
+              style={{ fontSize: '0.85rem', padding: '0.45rem 0.85rem' }}
+            >
+              <UserPlus size={16} />
+              <span>Register User</span>
+            </button>
+          )}
+
+          {/* DB Status Badge */}
           <div 
             title={`Backend Status: ${dbStatus}`}
             style={{
@@ -93,7 +135,7 @@ export default function Navbar({ activeTab, setActiveTab, theme, toggleTheme, db
             }}
           >
             <Database size={14} />
-            <span>{dbStatus === 'connected' ? 'MongoDB Connected' : 'Express Active'}</span>
+            <span>{dbStatus === 'connected' ? 'Atlas Connected' : 'Express Active'}</span>
           </div>
 
           {/* Theme Toggle */}
@@ -115,6 +157,7 @@ export default function Navbar({ activeTab, setActiveTab, theme, toggleTheme, db
             <PlusCircle size={18} />
             <span>Submit Feedback</span>
           </button>
+
         </div>
 
       </div>

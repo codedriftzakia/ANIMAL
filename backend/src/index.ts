@@ -6,6 +6,7 @@ import animalRoutes from './routes/animalRoutes';
 import feedbackRoutes from './routes/feedbackRoutes';
 import uploadRoutes from './routes/uploadRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
+import userRoutes from './routes/userRoutes';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use('/api/animals', animalRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/users', userRoutes);
 
 // Health Check Endpoint
 app.get('/api/health', (req, res) => {

@@ -16,11 +16,11 @@ const AVAILABLE_TAGS = [
   'Stress Signs',
 ];
 
-export default function FeedbackFormModal({ animals, initialAnimalId, onClose, onSubmit }) {
+export default function FeedbackFormModal({ animals, initialAnimalId, currentUser, onClose, onSubmit }) {
   const [step, setStep] = useState(1);
   const [animalId, setAnimalId] = useState(initialAnimalId || (animals[0]?._id || ''));
-  const [userName, setUserName] = useState('');
-  const [userRole, setUserRole] = useState('Visitor');
+  const [userName, setUserName] = useState(currentUser?.name || '');
+  const [userRole, setUserRole] = useState(currentUser?.role || 'Visitor');
 
   // Step 2 Ratings & Tags
   const [ratings, setRatings] = useState({

@@ -4,6 +4,7 @@ import DashboardView from './components/DashboardView';
 import AnimalCatalogView from './components/AnimalCatalogView';
 import FeedbackExplorerView from './components/FeedbackExplorerView';
 import FeedbackFormModal from './components/FeedbackFormModal';
+import UserRegistrationModal from './components/UserRegistrationModal';
 import AnimalDetailModal from './components/AnimalDetailModal';
 import ToastNotification from './components/ToastNotification';
 import { 
@@ -16,6 +17,12 @@ export default function App() {
   const [theme, setTheme] = useState('light');
   const [dbStatus, setDbStatus] = useState('connected');
 
+  // Registered User Session State
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem('faunapulse_registered_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+
   // State Data
   const [animals, setAnimals] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
@@ -23,11 +30,13 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   // Modal States
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
   const [initialAnimalForForm, setInitialAnimalForForm] = useState(null);
   const [selectedAnimalForDetail, setSelectedAnimalForDetail] = useState(null);
+  const [pendingAnimalTarget, setPendingAnimalTarget] = useState(null);
 
-  // Toast
+  // Toast State
   const [toast, setToast] = useState(null);
 
   const showToast = (message, type = 'success') => {
@@ -70,6 +79,14 @@ export default function App() {
 
   // Handlers
   const handleOpenSubmitModal = (animal = null) => {
+    // REQUIRE USER REGISTRATION FIRST IF NOT REGISTERED
+    if (!currentUser) {
+      setPendingAnimalTarget(animal);
+      setIsRegisterModalOpen(true);
+      showToast('Please register your profile before writing feedback', 'info');
+      return;
+    }
+
     if (animal) {
       setInitialAnimalForForm(animal._id);
     } else {
@@ -78,9 +95,28 @@ export default function App() {
     setIsSubmitModalOpen(true);
   };
 
+  const handleRegisterSuccess = (registeredUserData) => {
+    setCurrentUser(registeredUserData);
+    localStorage.setItem('faunapulse_registered_user', JSON.stringify(registeredUserData));
+    setIsRegisterModalOpen(false);
+    showToast(`Welcome, ${registeredUserData.name}! Registration complete.`, 'success');
+
+    // Automatically transition to writing feedback
+    if (pendingAnimalTarget) {
+      setInitialAnimalForForm(pendingAnimalTarget._id);
+      setPendingAnimalTarget(null);
+    }
+    setIsSubmitModalOpen(true);
+  };
+
   const handleSubmitFeedback = async (feedbackData) => {
     try {
-      const res = await submitFeedback(feedbackData);
+      const payload = {
+        ...feedbackData,
+        userName: feedbackData.userName || currentUser?.name || 'Registered Supporter',
+        userRole: feedbackData.userRole || currentUser?.role || 'Visitor',
+      };
+      const res = await submitFeedback(payload);
       if (res && res.success) {
         showToast('Feedback submitted & animal welfare score recalculated!', 'success');
         await loadAppData();
@@ -123,10 +159,12 @@ export default function App() {
         theme={theme}
         toggleTheme={toggleTheme}
         dbStatus={dbStatus}
+        currentUser={currentUser}
+        onOpenRegisterModal={() => setIsRegisterModalOpen(true)}
         onOpenSubmitModal={() => handleOpenSubmitModal()}
       />
 
-      {/* Main View Router */}
+      {/* Main Views Router */}
       <main>
         {loading ? (
           <div className="glass-panel" style={{ padding: '4rem', textAlign: 'center' }}>
@@ -167,16 +205,26 @@ export default function App() {
         )}
       </main>
 
-      {/* Modal Dialogs */}
+      {/* User Registration Modal */}
+      {isRegisterModalOpen && (
+        <UserRegistrationModal
+          onClose={() => setIsRegisterModalOpen(false)}
+          onRegisterSuccess={handleRegisterSuccess}
+        />
+      )}
+
+      {/* Submit Feedback Modal */}
       {isSubmitModalOpen && (
         <FeedbackFormModal
           animals={animals}
           initialAnimalId={initialAnimalForForm}
+          currentUser={currentUser}
           onClose={() => setIsSubmitModalOpen(false)}
           onSubmit={handleSubmitFeedback}
         />
       )}
 
+      {/* Animal Detail Modal */}
       {selectedAnimalForDetail && (
         <AnimalDetailModal
           animal={selectedAnimalForDetail}

@@ -1,5 +1,31 @@
 const API_BASE = '/api';
 
+let localUsers = [];
+
+export async function registerUser(userData) {
+  try {
+    const res = await fetch(`${API_BASE}/users/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    });
+    if (!res.ok) throw new Error('Registration failed');
+    return await res.json();
+  } catch (err) {
+    console.warn('API error, using local registration fallback:', err.message);
+    const newReg = {
+      _id: `user_${Date.now()}`,
+      name: userData.name,
+      email: userData.email,
+      role: userData.role || 'Visitor',
+      organization: userData.organization || '',
+      createdAt: new Date().toISOString(),
+    };
+    localUsers.push(newReg);
+    return { success: true, data: newReg };
+  }
+}
+
 // Fallback Mock Data for instant offline/standalone support
 const MOCK_ANIMALS = [
   {
