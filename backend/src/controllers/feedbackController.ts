@@ -57,14 +57,23 @@ export async function createFeedback(req: Request, res: Response) {
       return res.status(404).json({ success: false, message: 'Referenced Animal does not exist' });
     }
 
+    const normalizedRatings = typeof ratings === 'number'
+      ? { overall: ratings, welfare: ratings, enclosure: ratings, interaction: ratings }
+      : {
+          overall: ratings?.overall || 5,
+          welfare: ratings?.welfare || 5,
+          enclosure: ratings?.enclosure || 5,
+          interaction: ratings?.interaction || 5,
+        };
+
     // Dynamic Sentiment Analysis
-    const sentiment = analyzeSentiment(comment || '', ratings, Boolean(isUrgent));
+    const sentiment = analyzeSentiment(comment || '', normalizedRatings, Boolean(isUrgent));
 
     const feedback = new Feedback({
       animalId,
       userName: userName || 'Anonymous Supporter',
       userRole: userRole || 'Visitor',
-      ratings,
+      ratings: normalizedRatings,
       tags: tags || [],
       comment,
       imageUrl: imageUrl || '',
